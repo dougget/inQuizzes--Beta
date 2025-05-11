@@ -152,7 +152,7 @@ export default function HomePage() {
           </div>
           <CardTitle className="text-3xl font-bold text-primary">Quizify</CardTitle>
           <CardDescription className="text-muted-foreground text-lg">
-            Upload your document and let AI generate a quiz for you!
+            Upload your document and let AI generate a quiz for you! 🧠
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 space-y-6">
