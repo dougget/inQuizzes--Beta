@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -14,6 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronLeft, ChevronRight, CheckCircle2, XCircle, AlertTriangle, RotateCcw } from 'lucide-react';
 import { ThemeToggleButton } from '@/components/layout/theme-toggle-button';
+import { useToast } from '@/hooks/use-toast'; // Added missing import
 
 const QLogo = ({ size = 40 }: { size?: number }) => (
   <svg
@@ -50,6 +52,7 @@ export default function QuizPage() {
 
   const [selectedAnswer, setSelectedAnswer] = useState<string | undefined>(undefined);
   const [showFeedback, setShowFeedback] = useState(false);
+  const { toast } = useToast(); 
 
   const { mutate: fetchQuestions, isPending: isLoadingQuestions } = useMutation({
     mutationFn: async (input: GenerateQuizQuestionsInput) => generateQuizQuestions(input),
@@ -84,8 +87,6 @@ export default function QuizPage() {
       router.push('/'); 
     },
   });
-
-  const { toast } = useToast(); // Added for error toast
 
   useEffect(() => {
     if (quizState === 'loading' && documentContent && questions.length === 0) {
