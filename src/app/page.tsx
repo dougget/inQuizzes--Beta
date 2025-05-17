@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { UploadCloud, FileText, AlertTriangle, Lightbulb } from 'lucide-react';
+import { UploadCloud, FileText, AlertTriangle } from 'lucide-react';
 import { ThemeToggleButton } from '@/components/layout/theme-toggle-button';
 import Image from 'next/image';
 
@@ -152,7 +152,7 @@ export default function HomePage() {
           </div>
           <CardTitle className="text-3xl font-bold text-primary">Quizify</CardTitle>
           <CardDescription className="text-muted-foreground text-lg">
-            Upload your document and let AI generate a quiz for you! <Lightbulb className="inline-block ml-1 h-5 w-5 text-yellow-500" />
+            Upload your document and let AI generate a quiz for you!
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 space-y-6">
