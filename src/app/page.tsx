@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useCallback, DragEvent } from 'react';
@@ -241,7 +242,7 @@ export default function HomePage() {
         </CardContent>
       </Card>
       <footer className="mt-8 text-center text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} inQuizzes. Powered by AI magic.</p>
+        <p>inQuizzes is powered by AI magic.</p>
       </footer>
     </main>
   );
