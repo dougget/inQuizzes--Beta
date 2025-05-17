@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Quizify - Generate Quizzes from Documents',
-  description: 'Upload your documents and Quizify will generate multiple-choice questions for you!',
+  title: 'inQuizzes - Generate Quizzes from Documents',
+  description: 'Upload your documents and inQuizzes will generate multiple-choice questions for you!',
 };
 
 export default function RootLayout({

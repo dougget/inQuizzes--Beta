@@ -14,7 +14,21 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronLeft, ChevronRight, CheckCircle2, XCircle, AlertTriangle, RotateCcw } from 'lucide-react';
 import { ThemeToggleButton } from '@/components/layout/theme-toggle-button';
-import Image from 'next/image';
+
+const QLogo = ({ size = 40 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 64 64"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="text-primary"
+    data-ai-hint="letter Q logo"
+  >
+    <circle cx="32" cy="32" r="24" stroke="currentColor" strokeWidth="7"/>
+    <line x1="33" y1="35" x2="50" y2="52" stroke="currentColor" strokeWidth="8" strokeLinecap="round"/>
+  </svg>
+);
 
 export default function QuizPage() {
   const router = useRouter();
@@ -30,7 +44,8 @@ export default function QuizPage() {
     setScore,
     quizState,
     setQuizState,
-    resetQuiz
+    resetQuiz,
+    numberOfQuestions 
   } = useQuiz();
 
   const [selectedAnswer, setSelectedAnswer] = useState<string | undefined>(undefined);
@@ -39,38 +54,57 @@ export default function QuizPage() {
   const { mutate: fetchQuestions, isPending: isLoadingQuestions } = useMutation({
     mutationFn: async (input: GenerateQuizQuestionsInput) => generateQuizQuestions(input),
     onSuccess: (data) => {
-      const formattedQuestions = data.questions.map(q => ({ ...q, userAnswer: undefined, isCorrect: undefined }));
+      // Ensure we only use the number of questions requested, even if AI returns more/less.
+      // And ensure each question has 5 options, padding/truncating if necessary for robustness.
+      const formattedQuestions = data.questions.slice(0, numberOfQuestions).map(q => ({ 
+        ...q,
+        options: q.options.slice(0, 5), // Take first 5
+        userAnswer: undefined, 
+        isCorrect: undefined 
+      }));
+      
+      // If AI returned fewer than 5 options for some questions, pad them.
+      formattedQuestions.forEach(q => {
+        while (q.options.length < 5) {
+          q.options.push("AI_Option_Placeholder"); 
+        }
+      });
+
       setQuestions(formattedQuestions);
       setQuizState('active');
     },
     onError: (error) => {
       console.error("Failed to generate questions:", error);
-      setQuizState('idle'); // Or an error state
-      // Potentially navigate back or show error message
-      router.push('/'); // Simple redirect for now
+      setQuizState('error'); 
+      toast({
+        variant: 'destructive',
+        title: 'Error Generating Quiz',
+        description: (error as Error).message || 'Could not generate questions. Please try again.',
+      });
+      router.push('/'); 
     },
   });
 
-  useEffect(() => {
-    if (quizState === 'loading' && documentContent && questions.length === 0) {
-      fetchQuestions({ documentContent });
-    } else if (!documentContent && quizState !== 'idle') {
-      // If no document content, redirect to home. This can happen on page refresh.
-      router.replace('/');
-    }
-  }, [quizState, documentContent, questions.length, fetchQuestions, router]);
+  const { toast } = useToast(); // Added for error toast
 
   useEffect(() => {
-    // When question changes, reset selection and feedback
+    if (quizState === 'loading' && documentContent && questions.length === 0) {
+      fetchQuestions({ documentContent, numberOfQuestions });
+    } else if (!documentContent && quizState !== 'idle' && quizState !== 'error') {
+      router.replace('/');
+    }
+  }, [quizState, documentContent, questions.length, fetchQuestions, router, numberOfQuestions]);
+
+  useEffect(() => {
     setSelectedAnswer(userAnswers[currentQuestionIndex]);
-    setShowFeedback(!!userAnswers[currentQuestionIndex]); // Show feedback if already answered
+    setShowFeedback(!!userAnswers[currentQuestionIndex]); 
   }, [currentQuestionIndex, userAnswers]);
 
 
   const currentQ = questions[currentQuestionIndex];
 
   const handleAnswerSelection = (answer: string) => {
-    if (showFeedback) return; // Don't allow changing answer after feedback is shown
+    if (showFeedback) return; 
     setSelectedAnswer(answer);
   };
 
@@ -94,12 +128,13 @@ export default function QuizPage() {
   };
 
   const handleNextQuestion = () => {
-    if (!showFeedback && selectedAnswer) { // If answer selected but not submitted, submit it first
+    if (!showFeedback && selectedAnswer) { 
       handleSubmitAnswer();
     }
+    // Check questions.length instead of numberOfQuestions in case AI returned fewer.
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setSelectedAnswer(undefined); // Reset for next question
+      setSelectedAnswer(undefined); 
       setShowFeedback(false);
     } else {
       setQuizState('finished');
@@ -110,8 +145,8 @@ export default function QuizPage() {
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
-      setSelectedAnswer(undefined); // Reset for prev question
-      setShowFeedback(false);
+      // setSelectedAnswer(undefined); // Retain previous answer when navigating back for review
+      // setShowFeedback(false); // Retain feedback state for review
     }
   };
   
@@ -126,7 +161,7 @@ export default function QuizPage() {
         <Card className="w-full max-w-2xl">
           <CardHeader>
             <CardTitle>Generating Quiz...</CardTitle>
-            <CardDescription>AI is working its magic. Please wait a moment.</CardDescription>
+            <CardDescription>AI is working its magic to craft {numberOfQuestions} questions. Please wait a moment.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Skeleton className="h-8 w-3/4" />
@@ -134,14 +169,15 @@ export default function QuizPage() {
             <Skeleton className="h-6 w-5/6" />
             <Skeleton className="h-6 w-full" />
             <Skeleton className="h-6 w-4/6" />
-            <Progress value={50} className="w-full mt-4 animate-pulse" />
+            <Skeleton className="h-6 w-4/6" />
+            <Progress value={isLoadingQuestions ? undefined : 50} className="w-full mt-4" />
           </CardContent>
         </Card>
       </div>
     );
   }
-
-  if (quizState !== 'active' || !currentQ) {
+  
+  if (quizState === 'error' || (!isLoadingQuestions && quizState !== 'active' && quizState !== 'finished') || !currentQ) {
      return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
         <Card className="w-full max-w-md text-center">
@@ -163,7 +199,7 @@ export default function QuizPage() {
     );
   }
 
-  const progressPercentage = ((currentQuestionIndex + 1) / questions.length) * 100;
+  const progressPercentage = questions.length > 0 ? ((currentQuestionIndex + 1) / questions.length) * 100 : 0;
 
   return (
     <main className="flex min-h-screen flex-col items-center p-4 sm:p-8 bg-gradient-to-br from-background to-secondary/30 dark:from-background dark:to-secondary/10">
@@ -172,8 +208,8 @@ export default function QuizPage() {
       </div>
        <div className="w-full max-w-4xl mb-6">
           <div className="flex justify-center items-center mb-2">
-            <Image src="/quizify-logo.svg" alt="Quizify Logo" width={40} height={40} data-ai-hint="quiz education" />
-            <h1 className="text-2xl font-bold text-primary ml-2">Quizify</h1>
+            <QLogo size={40} />
+            <h1 className="text-2xl font-bold text-primary ml-2">inQuizzes</h1>
           </div>
           <Progress value={progressPercentage} className="w-full h-3 [&>div]:bg-primary" />
           <p className="text-sm text-muted-foreground mt-1 text-center">Question {currentQuestionIndex + 1} of {questions.length}</p>
@@ -225,10 +261,10 @@ export default function QuizPage() {
           </RadioGroup>
 
           {showFeedback && (
-            <Alert className={`mt-6 ${currentQ.isCorrect ? 'border-accent bg-accent/5' : 'border-destructive bg-destructive/5'}`}>
-              {currentQ.isCorrect ? <CheckCircle2 className="h-5 w-5 text-accent" /> : <XCircle className="h-5 w-5 text-destructive" />}
-              <AlertTitle className={`font-semibold ${currentQ.isCorrect ? 'text-accent' : 'text-destructive'}`}>
-                {currentQ.isCorrect ? 'Correct!' : 'Incorrect.'}
+            <Alert className={`mt-6 ${currentQ.userAnswer === currentQ.correctAnswer ? 'border-accent bg-accent/5' : 'border-destructive bg-destructive/5'}`}>
+              {currentQ.userAnswer === currentQ.correctAnswer ? <CheckCircle2 className="h-5 w-5 text-accent" /> : <XCircle className="h-5 w-5 text-destructive" />}
+              <AlertTitle className={`font-semibold ${currentQ.userAnswer === currentQ.correctAnswer ? 'text-accent' : 'text-destructive'}`}>
+                {currentQ.userAnswer === currentQ.correctAnswer ? 'Correct!' : 'Incorrect.'}
               </AlertTitle>
               <AlertDescription className="text-foreground">
                 {currentQ.explanation}
@@ -252,7 +288,7 @@ export default function QuizPage() {
           ) : (
             <Button 
               onClick={handleNextQuestion} 
-              disabled={!selectedAnswer && !showFeedback} // Disable if no answer selected OR if feedback not yet shown (unless already answered)
+              disabled={!showFeedback && !userAnswers[currentQuestionIndex]} // Disable if not answered (and feedback not shown)
               className="w-full sm:w-auto bg-primary hover:bg-primary/90"
             >
               {currentQuestionIndex === questions.length - 1 ? 'Finish Quiz' : 'Next Question'}

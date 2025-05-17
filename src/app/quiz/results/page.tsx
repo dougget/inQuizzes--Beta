@@ -8,19 +8,31 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CheckCircle2, XCircle, RotateCcw, Trophy, ListChecks } from 'lucide-react';
 import { ThemeToggleButton } from '@/components/layout/theme-toggle-button';
-import Image from 'next/image';
+
+const QLogo = ({ size = 48 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 64 64"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="text-primary"
+    data-ai-hint="letter Q logo"
+  >
+    <circle cx="32" cy="32" r="24" stroke="currentColor" strokeWidth="7"/>
+    <line x1="33" y1="35" x2="50" y2="52" stroke="currentColor" strokeWidth="8" strokeLinecap="round"/>
+  </svg>
+);
 
 export default function ResultsPage() {
   const router = useRouter();
   const { questions, score, userAnswers, resetQuiz, quizState } = useQuiz();
 
   if (quizState !== 'finished' || questions.length === 0) {
-    // If quiz not finished or no questions, redirect to home.
-    // This can happen if user navigates here directly or refreshes.
     if (typeof window !== 'undefined') {
       router.replace('/');
     }
-    return ( // Fallback for server render or before redirect
+    return ( 
       <div className="flex items-center justify-center min-h-screen">
         <p>Loading results or redirecting...</p>
       </div>
@@ -50,8 +62,8 @@ export default function ResultsPage() {
         <ThemeToggleButton />
       </div>
        <div className="flex justify-center items-center mb-4">
-         <Image src="/quizify-logo.svg" alt="Quizify Logo" width={48} height={48} data-ai-hint="quiz education" />
-         <h1 className="text-3xl font-bold text-primary ml-3">Quizify Results</h1>
+         <QLogo size={48} />
+         <h1 className="text-3xl font-bold text-primary ml-3">inQuizzes Results</h1>
       </div>
 
       <Card className="w-full max-w-3xl shadow-2xl rounded-xl overflow-hidden">
@@ -107,7 +119,7 @@ export default function ResultsPage() {
         </CardFooter>
       </Card>
        <footer className="mt-8 text-center text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Quizify. Keep learning!</p>
+        <p>&copy; {new Date().getFullYear()} inQuizzes. Keep learning!</p>
       </footer>
     </main>
   );

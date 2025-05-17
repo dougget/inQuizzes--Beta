@@ -7,11 +7,26 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
+import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { UploadCloud, FileText, AlertTriangle } from 'lucide-react';
+import { UploadCloud, FileText } from 'lucide-react';
 import { ThemeToggleButton } from '@/components/layout/theme-toggle-button';
-import Image from 'next/image';
 
+const QLogo = ({ size = 64 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 64 64"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="text-primary"
+    data-ai-hint="letter Q logo"
+  >
+    <circle cx="32" cy="32" r="24" stroke="currentColor" strokeWidth="7"/>
+    <line x1="33" y1="35" x2="50" y2="52" stroke="currentColor" strokeWidth="8" strokeLinecap="round"/>
+  </svg>
+);
 
 const ACCEPTED_FILE_TYPES = ['.txt', '.md', '.html', '.rtf', '.odt', '.doc', '.docx', '.pdf'];
 const MAX_FILE_SIZE_MB = 25;
@@ -26,9 +41,6 @@ const readFileContent = async (file: File): Promise<string> => {
       reader.onerror = (e) => reject(new Error('Failed to read file.'));
       reader.readAsText(file);
     } else if (file.name.endsWith('.pdf') || file.name.endsWith('.doc') || file.name.endsWith('.docx') || file.name.endsWith('.rtf') || file.name.endsWith('.odt')) {
-      // For complex files, actual parsing is non-trivial on client-side.
-      // We'll use a placeholder or indicate that full parsing is server-side/library dependent.
-      // For this demo, we'll return a message. A real app would use a library or server-side parsing.
       console.warn(`Client-side parsing for ${file.name} is complex. Using file name as placeholder content.`);
       resolve(`Content from file: ${file.name}. Full parsing for this file type would require a dedicated library or server-side processing.`);
     } else {
@@ -39,12 +51,14 @@ const readFileContent = async (file: File): Promise<string> => {
 
 export default function HomePage() {
   const router = useRouter();
-  const { setDocumentContent, resetQuiz, setQuizState } = useQuiz();
+  const { setDocumentContent, resetQuiz, setQuizState, setNumberOfQuestions: setContextNumberOfQuestions } = useQuiz();
   const { toast } = useToast();
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [numQuestions, setNumQuestions] = useState<number>(25);
+
 
   const handleFileChange = (selectedFile: File | null) => {
     if (selectedFile) {
@@ -83,7 +97,6 @@ export default function HomePage() {
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    // You can add custom drag over effects here if needed
   };
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
@@ -106,9 +119,8 @@ export default function HomePage() {
     }
 
     setIsLoading(true);
-    setUploadProgress(0); // Reset progress
+    setUploadProgress(0); 
 
-    // Simulate upload progress
     let progress = 0;
     const interval = setInterval(() => {
       progress += 10;
@@ -121,15 +133,16 @@ export default function HomePage() {
     
     try {
       const content = await readFileContent(file);
-      clearInterval(interval); // Ensure interval is cleared
-      setUploadProgress(100); // Final progress
+      clearInterval(interval);
+      setUploadProgress(100); 
       
-      resetQuiz(); // Reset any previous quiz state
+      resetQuiz(); 
       setDocumentContent(content);
-      setQuizState('loading'); // Indicate questions are being generated
+      setContextNumberOfQuestions(numQuestions);
+      setQuizState('loading'); 
       router.push('/quiz');
     } catch (error) {
-      clearInterval(interval); // Ensure interval is cleared on error
+      clearInterval(interval); 
       setUploadProgress(0);
       setIsLoading(false);
       toast({
@@ -148,9 +161,9 @@ export default function HomePage() {
       <Card className="w-full max-w-lg shadow-2xl rounded-xl overflow-hidden">
         <CardHeader className="text-center bg-primary/10 dark:bg-primary/20 p-6">
           <div className="flex justify-center items-center mb-4">
-            <Image src="/quizify-logo.svg" alt="Quizify Logo" width={64} height={64} data-ai-hint="quiz education" />
+            <QLogo size={64} />
           </div>
-          <CardTitle className="text-3xl font-bold text-primary">Quizify</CardTitle>
+          <CardTitle className="text-3xl font-bold text-primary">inQuizzes</CardTitle>
           <CardDescription className="text-muted-foreground text-lg">
             Upload your document and let AI generate a quiz for you!
           </CardDescription>
@@ -174,7 +187,7 @@ export default function HomePage() {
               {file ? file.name : 'Drag & drop a file here, or click to select'}
             </p>
             <p className="text-xs text-muted-foreground mt-1 text-center">
-              Supported: .txt, .md, .html, .rtf, .odt, .doc, .docx, .pdf (up to {MAX_FILE_SIZE_MB}MB)
+              Supported: {ACCEPTED_FILE_TYPES.join(', ')} (up to {MAX_FILE_SIZE_MB}MB)
             </p>
             <Input
               id="file-upload-input"
@@ -200,19 +213,35 @@ export default function HomePage() {
               </p>
             </div>
           )}
+
+          <div className="space-y-3">
+            <Label htmlFor="num-questions-slider" className="font-medium text-foreground">
+              Number of Questions: <span className="text-primary font-semibold">{numQuestions}</span>
+            </Label>
+            <Slider
+              id="num-questions-slider"
+              value={[numQuestions]}
+              onValueChange={(value) => setNumQuestions(value[0])}
+              min={5}
+              max={50}
+              step={5}
+              className="w-full"
+              aria-label="Select number of questions"
+            />
+          </div>
           
           <Button
             onClick={handleSubmit}
             disabled={!file || isLoading}
             className="w-full text-lg py-6 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-md transition-transform hover:scale-105"
-            aria-label="Generate Quiz from selected file"
+            aria-label={`Generate ${numQuestions} Questions Quiz from selected file`}
           >
-            {isLoading ? 'Processing...' : 'Generate Quiz'}
+            {isLoading ? 'Processing...' : `Generate Quiz (${numQuestions} Questions)`}
           </Button>
         </CardContent>
       </Card>
       <footer className="mt-8 text-center text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Quizify. Powered by AI magic.</p>
+        <p>&copy; {new Date().getFullYear()} inQuizzes. Powered by AI magic.</p>
       </footer>
     </main>
   );

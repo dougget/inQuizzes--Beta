@@ -4,7 +4,6 @@ import type { ReactNode } from 'react';
 import { createContext, useContext, useState, useMemo } from 'react';
 import type { GenerateQuizQuestionsOutput } from '@/ai/flows/generate-quiz-questions';
 
-// Changed from interface to type alias with intersection to resolve parsing error
 export type QuizQuestionUserAnswer = GenerateQuizQuestionsOutput['questions'][0] & {
   userAnswer?: string;
   isCorrect?: boolean;
@@ -15,7 +14,7 @@ interface QuizContextType {
   setDocumentContent: (content: string | null) => void;
   questions: QuizQuestionUserAnswer[];
   setQuestions: (questions: QuizQuestionUserAnswer[]) => void;
-  userAnswers: Record<number, string>; // questionIndex: answer
+  userAnswers: Record<number, string>; 
   setUserAnswers: (answers: Record<number, string>) => void;
   currentQuestionIndex: number;
   setCurrentQuestionIndex: (index: number) => void;
@@ -23,6 +22,8 @@ interface QuizContextType {
   setScore: (score: number) => void;
   quizState: 'idle' | 'loading' | 'active' | 'finished';
   setQuizState: (state: 'idle' | 'loading' | 'active' | 'finished') => void;
+  numberOfQuestions: number;
+  setNumberOfQuestions: (num: number) => void;
   resetQuiz: () => void;
 }
 
@@ -35,6 +36,7 @@ const initialState = {
   currentQuestionIndex: 0,
   score: 0,
   quizState: 'idle' as 'idle' | 'loading' | 'active' | 'finished',
+  numberOfQuestions: 25, // Default number of questions
 };
 
 export function QuizProvider({ children }: { children: ReactNode }) {
@@ -44,6 +46,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   const [currentQuestionIndex, setCurrentQuestionIndexState] = useState<number>(initialState.currentQuestionIndex);
   const [score, setScoreState] = useState<number>(initialState.score);
   const [quizState, setQuizStateInternal] = useState<'idle' | 'loading' | 'active' | 'finished'>(initialState.quizState);
+  const [numberOfQuestions, setNumberOfQuestionsState] = useState<number>(initialState.numberOfQuestions);
 
   const setDocumentContent = (content: string | null) => {
     setDocumentContentState(content);
@@ -69,6 +72,10 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     setQuizStateInternal(state);
   };
 
+  const setNumberOfQuestions = (num: number) => {
+    setNumberOfQuestionsState(num);
+  };
+
   const resetQuiz = () => {
     setDocumentContentState(initialState.documentContent);
     setQuestionsState(initialState.questions);
@@ -76,6 +83,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     setCurrentQuestionIndexState(initialState.currentQuestionIndex);
     setScoreState(initialState.score);
     setQuizStateInternal(initialState.quizState);
+    setNumberOfQuestionsState(initialState.numberOfQuestions);
   };
 
   const contextValue = useMemo(() => ({
@@ -91,8 +99,10 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     setScore,
     quizState,
     setQuizState,
+    numberOfQuestions,
+    setNumberOfQuestions,
     resetQuiz,
-  }), [documentContent, questions, userAnswers, currentQuestionIndex, score, quizState]);
+  }), [documentContent, questions, userAnswers, currentQuestionIndex, score, quizState, numberOfQuestions]);
 
   return (
     <QuizContext.Provider value={contextValue}>
