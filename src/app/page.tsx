@@ -190,9 +190,6 @@ export default function HomePage() {
             <p className="text-xs text-muted-foreground mt-1 text-center">
               Supported: {ACCEPTED_FILE_TYPES.join(', ')} (up to {MAX_FILE_SIZE_MB}MB).
             </p>
-            <p className="text-xs text-muted-foreground mt-1 text-center">
-              For optimal quiz generation from text-heavy files, content up to around 400KB is recommended.
-            </p>
             <Input
               id="file-upload-input"
               type="file"
