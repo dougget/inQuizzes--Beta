@@ -1,3 +1,4 @@
+
 // src/ai/flows/generate-quiz-questions.ts
 'use server';
 
@@ -45,7 +46,7 @@ const prompt = ai.definePrompt({
   name: 'generateQuizQuestionsPrompt',
   input: {schema: GenerateQuizQuestionsInputSchema},
   output: {schema: GenerateQuizQuestionsOutputSchema},
-  prompt: `You are an expert quiz generator. Your task is to create high-quality multiple-choice questions based on the provided document.
+  prompt: `You are an expert quiz generator. Your task is to create high-quality multiple-choice questions based on the provided document. Do not make questions about the document, focus on the document content.
 
   You will generate exactly {{{numberOfQuestions}}} multiple-choice questions.
   Each question must have exactly 5 answer options.
@@ -92,3 +93,4 @@ const generateQuizQuestionsFlow = ai.defineFlow(
     return output;
   }
 );
+
