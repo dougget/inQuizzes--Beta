@@ -15,7 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronLeft, ChevronRight, CheckCircle2, XCircle, AlertTriangle, RotateCcw } from 'lucide-react';
 import { ThemeToggleButton } from '@/components/layout/theme-toggle-button';
-import { useToast } from '@/hooks/use-toast'; // Added missing import
+import { useToast } from '@/hooks/use-toast';
 
 const QLogo = ({ size = 40 }: { size?: number }) => (
   <svg
@@ -82,7 +82,7 @@ export default function QuizPage() {
       toast({
         variant: 'destructive',
         title: 'Error Generating Quiz',
-        description: (error as Error).message || 'Could not generate questions. Please try again.',
+        description: "The document might be too long or its content too complex for the AI to process. Please try splitting larger documents into smaller parts. For PDFs, you can use tools like https://www.ilovepdf.com/split_pdf. Please try again with a smaller document segment.",
       });
       router.push('/'); 
     },

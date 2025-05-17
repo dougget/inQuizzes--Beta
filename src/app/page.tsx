@@ -30,7 +30,7 @@ const QLogo = ({ size = 64 }: { size?: number }) => (
 );
 
 const ACCEPTED_FILE_TYPES = ['.txt', '.md', '.html', '.rtf', '.odt', '.doc', '.docx', '.pdf'];
-const MAX_FILE_SIZE_MB = 25;
+const MAX_FILE_SIZE_MB = 10; // Changed from 25 to 10
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 // Simple client-side parsers (placeholders for complex formats)
