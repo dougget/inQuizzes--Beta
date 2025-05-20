@@ -13,7 +13,7 @@ Upload your document and let AI generate a quiz for you!
 
 ## Screenshot
 
-![inQuizzes Screenshot](./Screenshot.png)
+![inQuizzes Screenshot](./screenshot.png)
 
 ---
 
