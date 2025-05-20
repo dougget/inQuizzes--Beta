@@ -1,4 +1,3 @@
-
 // src/ai/flows/generate-quiz-questions.ts
 'use server';
 
@@ -46,18 +45,36 @@ const prompt = ai.definePrompt({
   name: 'generateQuizQuestionsPrompt',
   input: {schema: GenerateQuizQuestionsInputSchema},
   output: {schema: GenerateQuizQuestionsOutputSchema},
-  prompt: `You are an expert quiz generator. Your task is to create high-quality multiple-choice questions based on the provided document. Do not make questions about the document, focus on the document content.
+  prompt: `You are an expert quiz generator. Your task is to create high-quality multiple-choice questions based on the provided document content. Focus ONLY on the actual content and subject matter of the document, NOT on the document's metadata, file format, or technical aspects.
+
+  IMPORTANT RULES:
+  1. NEVER generate questions about:
+     - The document file itself (format, size, name, etc.)
+     - Document metadata (title, author, date, etc.)
+     - Technical aspects of document processing
+     - The process of generating questions
+  2. ONLY generate questions about:
+     - The actual subject matter and content
+     - Key concepts, ideas, and information presented
+     - Relationships between different pieces of information
+     - Analysis and understanding of the content
 
   You will generate exactly {{{numberOfQuestions}}} multiple-choice questions.
   Each question must have exactly 5 answer options.
   For each question, provide:
-  1. The question itself.
-  2. The 5 answer options.
+  1. The question itself - make it clear and focused on the content.
+  2. The 5 answer options - all must be plausible and directly related to the content.
   3. The correct answer from the 5 options.
-  4. A detailed explanation of why that answer is correct, referencing information from the document if possible.
+  4. A detailed explanation of why that answer is correct, referencing specific information from the content.
 
-  The questions should be extensive and elaborate, designed to test a deeper understanding of the material rather than simple factual recall. Each question should encourage critical thinking.
-  The 5 options provided for each question should be plausible and distinct, with one clearly correct answer based on the provided document content.
+  The questions should be extensive and elaborate, designed to test a deeper understanding of the material rather than simple factual recall. Each question should encourage critical thinking and demonstrate comprehension of the subject matter.
+
+  The 5 options provided for each question should be:
+  - Plausible and distinct
+  - Directly related to the content
+  - Based on actual information from the document
+  - Clear and well-formulated
+  - With one clearly correct answer supported by the content
 
   Document content:
   {{{documentContent}}}
