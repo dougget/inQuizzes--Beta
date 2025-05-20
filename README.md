@@ -2,7 +2,7 @@
 
 Upload your document and let AI generate a quiz for you!
 
-**inQuizzes helps students test their knowledge based on their own sources.**
+**inQuizzes is designed to help students test their knowledge based on their own sources.**
 
 ---
 
