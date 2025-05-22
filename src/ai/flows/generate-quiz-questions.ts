@@ -60,6 +60,7 @@ const prompt = ai.definePrompt({
      - Analysis and understanding of the content
 
   You will generate exactly {{{numberOfQuestions}}} multiple-choice questions.
+  The questions should be in the same language as the document content.
   Each question must have exactly 5 answer options.
   For each question, provide:
   1. The question itself - make it clear and focused on the content.
