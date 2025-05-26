@@ -7,7 +7,7 @@ Upload your document and let AI generate a quiz for you!
 ---
 
 ## Live Demo
-[www.inQuizzes.dougget.com](http://www.inQuizzes.dougget.com)
+[inQuizzes.dougget.com](https://inquizzes.dougget.duckdns.org/)
 
 ---
 
@@ -29,7 +29,7 @@ Upload your document and let AI generate a quiz for you!
 
 ### Prerequisites
 - [Docker](https://www.docker.com/) installed on your machine
-
+- [Free Google Gemini API KEY] (https://aistudio.google.com/app/apikey)
 ### Running with Docker
 1. Clone this repository:
    ```bash
@@ -40,11 +40,14 @@ Upload your document and let AI generate a quiz for you!
    ```bash
    docker build -t inquizzes .
    ```
-3. Run the Docker container:
+3. Create .env entry for your gemini-2.0-flash API key containing the following line:
+   ```GOOGLE_API_KEY=YOURGEMINI-2.0-FLASH-APIKEY
+   ```   
+4. Run the Docker container:
    ```bash
    docker run -p 3000:3000 inquizzes
    ```
-4. Open your browser and go to [http://localhost:3000](http://localhost:3000)
+5. Open your browser and go to [http://localhost:3000](http://localhost:3000) - The ports can be modified in your .env file.
 
 ---
 
