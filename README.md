@@ -41,7 +41,8 @@ Upload your document and let AI generate a quiz for you!
    docker build -t inquizzes .
    ```
 3. Create .env entry for your gemini-2.0-flash API key containing the following line:
-   ```GOOGLE_API_KEY=YOURGEMINI-2.0-FLASH-APIKEY
+   ```bash
+   GOOGLE_API_KEY=YOURGEMINI-2.0-FLASH-APIKEY
    ```   
 4. Run the Docker container:
    ```bash
